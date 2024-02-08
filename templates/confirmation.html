@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Saved</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .confirmation-message {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: #4CAF50;
+        }
+
+        a:hover {
+            color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Configuration Saved</h1>
+        <p class="confirmation-message">{{ confirmation_message }}</p>
+        <a href="{{ url_for('index') }}">Go back to configuration editor</a>
+    </div>
+</body>
+</html>

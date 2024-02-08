@@ -1,0 +1,147 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config Dashboard</title>
+</head>
+<body>
+    <h1>Config Dashboard</h1>
+    <form id="uploadForm" enctype="multipart/form-data" method="post" action="/upload">
+        <input type="file" name="file" accept=".json">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="configFields">
+        <form id="configForm">
+            {% if config_data %}
+                {% for section, fields in config_data.items() %}
+                    <div>
+                        <h2>{{ section }}</h2>
+                        {% for key, value in fields.items() %}
+                            <label>{{ key }}:</label>
+                            {% if key == 'username' or key == 'password' %}
+                                <input type="text" name="{{ key }}" value="{{ value }}" readonly>
+                            {% elif key == 'language' %}
+                                <select name="{{ key }}">
+                                    <option value="English" {% if value == 'English' %} selected {% endif %}>English</option>
+                                    <option value="Japanese" {% if value == 'Japanese' %} selected {% endif %}>Japanese</option>
+                                    <option value="Chinese" {% if value == 'Chinese' %} selected {% endif %}>Chinese</option>
+                                    <!-- Add more languages here -->
+                                </select>
+                            {% elif key == 'port' %}
+                                <select name="{{ key }}">
+                                    <option value="5432" {% if value == '5432' %} selected {% endif %}>5432</option>
+                                    <option value="80" {% if value == '80' %} selected {% endif %}>80</option>
+                                    <option value="443" {% if value == '443' %} selected {% endif %}>443</option>
+                                    <!-- Add more ports here -->
+                                </select>
+                            {% else %}
+                                <input type="text" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <button type="button" id="saveButton">Save</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    const data = JSON.parse(result.data);
+                    displayConfigFields(data);
+                } else {
+                    console.error('Upload failed:', result.message);
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        });
+
+        document.getElementById('saveButton').addEventListener('click', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById('configForm'));
+            try {
+                const response = await fetch('/save', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    console.log('Config file saved successfully.');
+                } else {
+                    console.error('Save failed:', result.message);
+                }
+            } catch (error) {
+                console.error('Error saving config file:', error);
+            }
+        });
+
+        function displayConfigFields(data) {
+            const container = document.getElementById('configFields');
+            container.innerHTML = ''; // Clear previous fields
+            for (const section in data) {
+                const fields = data[section];
+                const sectionDiv = document.createElement('div');
+                sectionDiv.innerHTML = `<h2>${section}</h2>`;
+                for (const key in fields) {
+                    const value = fields[key];
+                    const fieldLabel = document.createElement('label');
+                    fieldLabel.textContent = `${key}: `;
+                    const fieldInput = document.createElement('input');
+                    if (key == 'username' || key == 'password') {
+                        fieldInput.setAttribute('type', 'text');
+                        fieldInput.setAttribute('value', value);
+                        fieldInput.setAttribute('readonly', true);
+                    } else if (key == 'language') {
+                        const selectInput = document.createElement('select');
+                        selectInput.setAttribute('name', key);
+                        const languages = ['English', 'Japanese', 'Chinese']; // Add more languages here
+                        languages.forEach(lang => {
+                            const option = document.createElement('option');
+                            option.setAttribute('value', lang);
+                            option.textContent = lang;
+                            if (lang === value) {
+                                option.selected = true;
+                            }
+                            selectInput.appendChild(option);
+                        });
+                        fieldInput.replaceWith(selectInput);
+                    } else if (key == 'port') {
+                        const selectInput = document.createElement('select');
+                        selectInput.setAttribute('name', key);
+                        const ports = ['5432', '80', '443']; // Add more ports here
+                        ports.forEach(port => {
+                            const option = document.createElement('option');
+                            option.setAttribute('value', port);
+                            option.textContent = port;
+                            if (port === value) {
+                                option.selected = true;
+                            }
+                            selectInput.appendChild(option);
+                        });
+                        fieldInput.replaceWith(selectInput);
+                    } else {
+                        fieldInput.setAttribute('type', 'text');
+                        fieldInput.setAttribute('name', key);
+                        fieldInput.setAttribute('value', value);
+                    }
+                    sectionDiv.appendChild(fieldLabel);
+                    sectionDiv.appendChild(fieldInput);
+                }
+                container.appendChild(sectionDiv);
+            }
+        }
+    </script>
+</body>
+</html>

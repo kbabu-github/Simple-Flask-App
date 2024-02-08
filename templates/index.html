@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config File Upload</title>
+</head>
+<body>
+    <h1>Upload Config File</h1>
+    {% if not config_data %}
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="file">Select your JSON file:</label>
+        <input type="file" name="file" accept=".json" required>
+        <button type="submit">Upload</button>
+    </form>
+
+
+    {% endif %}
+
+    {% if config_data %}
+        <form id="configForm" action="{{ url_for('save_config') }}" method="post">
+            <input type="hidden" name="file" value="{{ selected_drive }}">
+            <label for="version">Version:</label>
+            <input type="text" name="version" value="{{ config_data['general']['version'] }}"><br><br>
+
+            <label for="language">Language:</label>
+            <select name="language">
+                {% for option in language_options %}
+                <option value="{{ option }}" {% if option == config_data['general']['language'] %} selected {% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="host">Database Host:</label>
+            <input type="text" name="host" value="{{ config_data['database']['host'] }}"><br><br>
+
+            <label for="port">Database Port:</label>
+            <select name="port">
+                {% for option in port_options %}
+                <option value="{{ option }}" {% if option == config_data['database']['port'] %} selected {% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="username">Database Username:</label>
+            <input type="text" name="username" value="{{ config_data['database']['username'] }}"><br><br>
+
+            <label for="password">Database Password:</label>
+            <input type="text" name="password" value="{{ config_data['database']['password'] }}"><br><br>
+            <input type="hidden" name="filename" value="{{ filename }}">
+            <button type="submit">Save</button>
+        </form>
+    {% endif %}
+</body>
+</html>
